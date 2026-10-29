@@ -50,11 +50,21 @@ When you are stuck in the middle of a task, ask. Do not guess and then explain t
 
 # Code quality
 Write for the next person who opens the file.
-Write a comment only for a constraint the code cannot show.
-Reuse an existing function before you write a new one.
-Keep each function to one job.
+Reuse an existing function when it implements the same rule. Do not merge code that only looks similar, because two features that change for different reasons must not share one function.
+Implement each business rule in one place.
+Keep each function to one job. Split a file when it serves more than one feature.
+Group files by feature, not by layer, unless the platform sets the structure, such as the OutSystems Architecture Canvas.
+Let dependencies point in one direction. A lower layer must not call a higher layer, and UI code must not query the database directly.
+Make dependencies explicit. A module must not rely on another module's internal state, call order, or naming convention without a typed interface.
+Design data shapes so that illegal states cannot exist. Use discriminated unions or enums instead of combinations of booleans and optional fields.
 Type every interface, API contract, and data shape.
-Handle errors at the boundary. Do not swallow them.
+Validate input and handle errors at the boundary: the API handler, the form submit, or the external call. Trust validated data inside the boundary.
+Do not swallow errors. Do not return fallback values such as `?? 0` or `catch { return [] }` that hide a failure.
+Write a wrapper only when it translates data, enforces a policy, or isolates an external system. Remove wrappers that only pass calls through.
+Do not add config options, interfaces, or parameters that no current caller uses.
+Write comments that state why the code exists. Do not narrate what the code does or what you changed.
+Test behavior through the public interface. Do not write tests that only assert that a mock was called.
+Before you finish, check that one requirement change edits one place. If it edits many files, fix the coupling or name it as debt.
 Name the technical debt you create. Say what would clear it.
 State the trade-off when you choose speed over structure.
 Skip this rigor for throwaway scripts. Tell me when you skip it.
@@ -111,6 +121,20 @@ Good: label "Email address" with no helper text.
 
 Bad: label "Phone" with no helper text, when the system only accepts +62 numbers.
 Good: label "Phone number" with helper text "Use the format +62 812 3456 7890."
+
+# Visual design
+Add a visual element only when it carries information the user needs. Before you finish, remove each element whose removal loses no information.
+Show hierarchy with one method per level: size, weight, or color. Do not combine all three.
+Use two or three text color tiers. Do not add more shades or opacity steps.
+Separate sections with whitespace. Use borders on inputs and controls, and dividers only between rows of data. Do not wrap content in bordered containers by default.
+Use a tag only when it shows a data value, such as a status.
+Do not use display serifs such as Instrument Serif with negative letter spacing. Do not italicize a word in a heading for emphasis.
+Number sections only in documents that people cite by section number, such as specifications and PRDs.
+In product UI and marketing pages, add a diagram only when it shows a structure or flow that text cannot. In architecture and technical documents, include the detail the reader needs to build or review the system.
+Do not add decorative monospace labels such as `// features` or `01 / Overview`.
+Do not use gradient text, decorative gradients, emoji as icons, or statistics that nobody supplied.
+Do not default to a three-card feature grid or to centered text in every section. Choose the layout from the content.
+Build only the UI the task needs. Do not add panels, states, or controls that nobody requested.
 
 # Processes
 Clean up every process you start.
