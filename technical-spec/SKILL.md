@@ -46,7 +46,7 @@ Then resolve the rest. **Architecture style and module boundaries are the hardes
 
 - **Architecture**: overall style (monolith/modular-monolith/microservices), module/service boundaries, request flow.
 - **Module definitions**: one per bounded area; its responsibility, public surface, and the AC/US it serves.
-- **Data model**: every entity, field, type, nullability, default, key, relationship; the ERD; common columns (id/timestamps); state machines for lifecycle entities.
+- **Data model**: every entity, field, type, nullability, default, key, relationship; the ERD; common columns (id/timestamps); a state machine for each entity whose status changes under business rules: every state, every legal transition with its actor and guard, the terminal states, and the error for any other move.
 - **Security & auth**: authn mechanism, authz model (roles/RBAC), session/token strategy, secrets, and each trust boundary with its threats and controls.
 - **NFRs**: volume, throughput, latency, availability targets, scaling assumptions.
 - **Integration points**: each external system, its contract, failure mode, and fallback.

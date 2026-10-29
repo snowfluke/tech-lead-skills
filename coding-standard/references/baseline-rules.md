@@ -37,6 +37,7 @@ stack-agnostic. Translate the examples into the project's language.
 - No dead code, no commented-out code; delete it (version control remembers).
 - Domain errors over raw throws; map them to the response envelope at the boundary. Never swallow an error into a bare log.
 - Every multi-step write that must be atomic runs in a transaction; audit/side-effect writes share that transaction.
+- A status that changes under business rules changes in one place: a transition function that checks the technical spec's transition table (the actor and the guard) and rejects every move the table does not list. Rationale: a status set by a plain assignment can reach a state no rule allows.
 
 **No partial work in shipped code**
 - No `// TODO` / `// FIXME` in merged code, except one explicitly sanctioned deferral pattern (e.g. a documented deferred-dependency marker) that the PR description lists. Rationale: a standard that tolerates open TODOs tolerates half-finished features.
