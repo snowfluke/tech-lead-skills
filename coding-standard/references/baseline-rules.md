@@ -6,6 +6,7 @@ stack-agnostic. Translate the examples into the project's language.
 **File and function size**
 - Cap files at **300 lines**; split proactively at **250**. A file that keeps growing is doing too many jobs. Rationale: small files are reviewable, testable, and navigable by humans and agents.
 - The split strategy: when a file approaches the cap, extract cohesive pieces into a sibling submodule folder (e.g. `<name>-impl/` with one file per responsibility, or split a fat module into its endpoint/feature units) rather than dumping helpers into a shared `utils`. Keep the public entry point thin and re-export.
+- Split a file that serves more than one feature, even under the cap.
 
 **Complexity**
 - Every function stays at cyclomatic complexity 10 or under **(enforced)**. Split an over-limit function by extracting a named function. Never suppress the rule. Rationale: a function with more than ten paths cannot be covered by a few tests.
@@ -26,16 +27,23 @@ stack-agnostic. Translate the examples into the project's language.
 - No untyped escape hatches: no `any`, no unchecked casts (`as`), no non-null assertions (`!`). Use real narrowing and handle null/undefined explicitly. Rationale: each escape hatch is a place the type system stops protecting you.
 - Explicit return types on exported functions. Prefer literal unions over loose enums where the language allows.
 - Derive types from the validation schema (one source of truth) rather than declaring them twice.
+- Shape data so that an illegal state cannot exist: a discriminated union or an enum, not a combination of booleans and optional fields. Rationale: a state the type cannot hold needs no check and no test.
 
-**Layering**
+**Structure and layering**
+- Group files by feature: each feature folder holds its handler, service, repository, and tests. Group by layer only when the platform sets the structure, for example the OutSystems Architecture Canvas.
+- Dependencies point one way: handler to service to repository. A lower layer never calls a higher one, and UI code never queries the data store.
 - No business logic in route/handler/controller code; it belongs in a service layer.
 - No direct data-store access outside a repository/data layer.
-- Modules do not import each other's internals; cross-cutting needs go through a shared helper. Rationale: boundaries are what make a module extractable and testable later.
+- Modules do not import each other's internals, and do not rely on another module's internal state, call order, or naming convention. They talk through a typed interface; cross-cutting needs go through a shared helper. Rationale: boundaries are what make a module extractable and testable later.
 
 **Correctness hygiene**
 - No magic numbers or strings; name them as constants.
 - No dead code, no commented-out code; delete it (version control remembers).
-- Domain errors over raw throws; map them to the response envelope at the boundary. Never swallow an error into a bare log.
+- Each business rule lives in one place. Reuse a function only when it implements the same rule: code that only looks alike stays apart, because features that change for different reasons must not share a function. Before hand-off, check that one requirement change edits one place; if it edits many, fix the coupling or name it as debt in the PR.
+- Validate input at the boundary (the handler, the form submit, the external call) and trust validated data inside it.
+- Domain errors over raw throws; map them to the response envelope at the boundary. Never swallow an error into a bare log or hide it behind a fallback value such as `?? 0` or `catch { return [] }`.
+- A wrapper translates data, enforces a policy, or isolates an external system. Delete a wrapper that only passes calls through.
+- No config option, interface, or parameter that no current caller uses.
 - Every multi-step write that must be atomic runs in a transaction; audit/side-effect writes share that transaction.
 - A status that changes under business rules changes in one place: a transition function that checks the technical spec's transition table (the actor and the guard) and rejects every move the table does not list. Rationale: a status set by a plain assignment can reach a state no rule allows.
 
@@ -77,6 +85,9 @@ Junk patterns. A test that matches one is rejected in review:
 
 The junk patterns are adapted from OpenClaw's test-audit skill (MIT, Copyright (c) 2026 OpenClaw Foundation).
 - Local e2e runs stay light: capped workers, one headless browser, the running dev server reused, only the affected specs, heavy scenarios tagged and left to CI, traces and video only on failure. The suite stops every process it started.
+
+**Comments**
+- A comment states why the code exists. It never narrates what the code does or what a change did.
 
 **Commits, branches, and pull requests**
 - Conventional Commits, imperative mood, the card ID in the subject or body.
