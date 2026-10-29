@@ -27,6 +27,15 @@ The flow also calls these skills from
 npx skills add snowfluke/engineering-skills -g -s grill-me -s work-card -s tdd -s git-commit -s open-pr -s address-review -s diagnose -s setup-pre-commit
 ```
 
+`lead-review`, `work-card`, and `security-standard` also call `security-audit` from
+[cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill):
+a focused review when a change touches a trust boundary, and a full audit before
+the first release when you agree to it. Install it the same way:
+
+```bash
+npx skills add cloudflare/security-audit-skill -g -s security-audit
+```
+
 ### Some skills only: keep the pairs together
 
 A few skills read files from another skill. Install them together, or the
@@ -95,7 +104,7 @@ push.
 7 TEST          triage -> 6 for bugs, 8 for changes   after each SIT or UAT round
 8 CHANGE        grill-me -> to-prd -> to-issues -> 6     new feature on a running project
 9 ADOPT         adopt-flow -> missing parts of 2 to 5 -> 8
-  RELEASE       security-standard                     before the first release, then each release
+  RELEASE       security-standard -> security-audit   before the first release, then each release
   LATER         troubleshooting                       once real incidents exist
   ANY TIME      test-audit                            when the test suite needs pruning
 ```
@@ -121,7 +130,7 @@ push.
 | 8 | `to-prd` | A `grill-me` decision log | New stories and AC in `docs/business/`, a parent issue |
 | 8 | `to-issues` | New stories and AC | New cards in `docs/task-breakdown/`, one issue per card; creates the folder on a running project |
 | 9 | `adopt-flow` | The existing repository | An audit of missing docs, then runs the skills that write them |
-| Release | `security-standard` | The security spec, the code, CI, deployment | `docs/security-standards/`: each OWASP and ASVS row with a status and the file that proves it |
+| Release | `security-standard` | The security spec, the code, CI, deployment | `docs/security-standards/`: each OWASP and ASVS row with a status and the file that proves it; with your consent, a full `security-audit` run whose findings change the rows |
 | Any time | `test-audit` | The tests, the production code, the test rules | A checked ledger per test in `docs/decisions/`, then one PR per batch |
 | Later | `troubleshooting` | Architecture and deployment plan | `docs/troubleshooting/`: one file per seam, by symptom |
 

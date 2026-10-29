@@ -41,6 +41,16 @@ Mark a row Done only when you opened the file and saw the control. For a
 Partial or Not done row with no card or issue, file one with `triage` as a
 Later item with the `backlog` label, then cite it.
 
+Before the first exposure, offer a full audit with the `security-audit` skill
+from cloudflare/security-audit-skill (`npx skills add cloudflare/security-audit-skill -g -s security-audit`).
+It runs many agents, so run it only when the user agrees, in its full audit
+mode, with its output folder outside the repository. Then update the tables
+from its findings:
+
+- A confirmed finding makes the row whose risk it shows Partial or Not done. File a `triage` issue for it and cite it.
+- A confirmed finding that no row covers gets a new row.
+- A finding the audit marks as needing validation becomes a condition in Before exposure.
+
 ## 4. Write the closing files
 
 - **Before exposure.** The conditions that must hold before an instance faces the internet, in order. Each is a row with a status and a `Where`.
