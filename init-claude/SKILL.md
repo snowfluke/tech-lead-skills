@@ -30,7 +30,7 @@ Write the sections in [references/layout.md](references/layout.md), in its order
 
 ## Writing rules
 
-- Terse and imperative. This file is read under context pressure; every line must earn its place. Restate rules in one sentence and point to the full doc rather than copying it wholesale.
+- Terse and imperative. Agents read this file with little context left, so every line states a rule they need. Restate rules in one sentence and point to the full doc rather than copying it wholesale.
 - Real values only: the actual stack versions, command names, paths, roles, and formats from the docs. No placeholders where a real value exists.
 - Keep it consistent with the other docs; if `CLAUDE.md` and the coding standard disagree, the standard wins and `CLAUDE.md` must be corrected.
 - Write to `CLAUDE.md` at the repo root (or `AGENTS.md` if the project uses that). Update in place if one exists; report what changed.
