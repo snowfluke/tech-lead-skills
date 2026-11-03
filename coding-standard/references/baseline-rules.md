@@ -47,6 +47,18 @@ stack-agnostic. Translate the examples into the project's language.
 - Every multi-step write that must be atomic runs in a transaction; audit/side-effect writes share that transaction.
 - A status that changes under business rules changes in one place: a transition function that checks the technical spec's transition table (the actor and the guard) and rejects every move the table does not list. Rationale: a status set by a plain assignment can reach a state no rule allows.
 
+**Data access and performance**
+- Select only the columns the code reads. Never load a full row or entity to read a few fields.
+- Parse a URL once, where it enters the system, and pass the parsed fields on.
+- Define regular expressions at module level, not inside functions or loops. Never call `test` or `exec` on a module-level regex with the `g` or `y` flag, because it keeps `lastIndex` between calls; use `matchAll` or `replace`, or create that regex inside the function.
+- In PostgreSQL, a field that hot-path code reads, filters, or sorts on is a typed column. jsonb holds only data without a fixed schema, and stays small. Rationale: PostgreSQL stores large values out of line (TOAST) and must read and decompress the whole value to return one key.
+
+**CSS** (projects with a web UI)
+- Follow [Defensive CSS](https://defensivecss.dev): the layout holds when content is longer, shorter, or missing compared with the mockup. Flex rows that can overflow wrap; text-holding flex items get `min-width: 0` and grid tracks `minmax(0, 1fr)`; long words and URLs break or truncate; spacing comes from `gap` or margins, never `justify-content: space-between`; variable content gets `min-height`/`min-width`, not fixed sizes, and buttons a `min-width`.
+- Images get `max-width: 100%`, and `object-fit: cover` at fixed dimensions; background images `no-repeat`; `var()` a fallback when the variable can be undefined; variable-count grids `auto-fill`.
+- `overflow: auto`, not `scroll`, with `scrollbar-gutter: stable` where a scrollbar shifts the layout and `overscroll-behavior: contain` on scrollable panels. Sticky children of grid or flex get `align-self: start`; sticky or fixed positioning sits inside a `min-height` media query.
+- Hover styles sit inside `@media (hover: hover)`. Inputs use `font-size` 16px or more, so iOS Safari does not zoom. Text on an image has a background or overlay. Vendor-prefixed selectors go in separate rules.
+
 **No partial work in shipped code**
 - No `// TODO` / `// FIXME` in merged code, except one explicitly sanctioned deferral pattern (e.g. a documented deferred-dependency marker) that the PR description lists. Rationale: a standard that tolerates open TODOs tolerates half-finished features.
 
