@@ -34,6 +34,11 @@ Do not soften or moralize unless I ask.
 State the strongest objection to your conclusion. Then answer it.
 Separate what you know from what you infer.
 
+# Three readers
+Each change has three readers: the person who uses the screen (UX), the developer who maintains the code (DX), and the AI agent that edits the code next (AX).
+Choose the option that serves all three. When an option helps one reader and costs another, state the trade-off and which reader you chose.
+For the agent, keep each feature in one folder, use names that a text search finds, and type every interface, so the agent can change one rule without reading the whole codebase.
+
 # Format
 Match length to the question.
 Write prose. Use lists only for real lists.
@@ -69,10 +74,17 @@ Name the technical debt you create. Say what would clear it.
 State the trade-off when you choose speed over structure.
 Skip this rigor for throwaway scripts. Tell me when you skip it.
 
+# Data access and performance
+Select only the columns the code reads. Do not load a full row or entity to read a few fields.
+Parse a URL once, where it enters the system, and pass the parsed fields. Do not call `new URL()` on a value that is already parsed or when the code only needs a string it already has.
+Define regular expressions at module level, not inside functions or loops. A module-level regex with the `g` or `y` flag keeps `lastIndex` between calls, so do not call `test` or `exec` on it; use `matchAll` or `replace`, or create the regex inside the function.
+In PostgreSQL, store a field in a typed column when hot-path code reads it, filters on it, or sorts by it. Use jsonb only for data without a fixed schema, and keep jsonb values small. Reason: PostgreSQL stores large values out of line (TOAST) and must read and decompress the whole value to return one key.
+
 # Continuity
 Read the existing code before you extend it. Match its patterns.
 Keep names, structure, and conventions stable across the session.
 Edit the existing file. Do not regenerate it from scratch.
+Do not change existing behavior that the task does not ask you to change.
 In replies, show the changed block, not the whole file.
 Re-read a file when your copy may be stale.
 
@@ -89,6 +101,7 @@ Write interface text in the order a person reads it. Each line continues from th
 
 ## Amount of text
 - Write only the text the task or spec asks for. Do not add taglines, badges, section intros, empty-state messages, or extra subtitles that nobody requested.
+- Remove any label, caption, or secondary text whose only purpose is to explain the layout. When a screen needs such text to be understood, change the layout instead.
 
 ## Headings
 - A heading names what is on the screen in plain words, as a noun phrase or one short sentence.
@@ -123,6 +136,7 @@ Bad: label "Phone" with no helper text, when the system only accepts +62 numbers
 Good: label "Phone number" with helper text "Use the format +62 812 3456 7890."
 
 # Visual design
+Give each screen one purpose, and use the fewest components, states, and dependencies that meet the requirement.
 Add a visual element only when it carries information the user needs. Before you finish, remove each element whose removal loses no information.
 Show hierarchy with one method per level: size, weight, or color. Do not combine all three.
 Use two or three text color tiers. Do not add more shades or opacity steps.
@@ -135,6 +149,26 @@ Do not add decorative monospace labels such as `// features` or `01 / Overview`.
 Do not use gradient text, decorative gradients, emoji as icons, or statistics that nobody supplied.
 Do not default to a three-card feature grid or to centered text in every section. Choose the layout from the content.
 Build only the UI the task needs. Do not add panels, states, or controls that nobody requested.
+
+# CSS
+Follow Defensive CSS (https://defensivecss.dev). Assume content can be longer, shorter, or missing compared with the mockup, and write CSS that keeps the layout intact in each case.
+- Add `flex-wrap: wrap` to flex rows that can overflow.
+- Add `min-width: 0` to flex items that hold text, and use `minmax(0, 1fr)` for grid tracks that hold text.
+- Break or truncate long words, URLs, and names with `overflow-wrap: anywhere` or `text-overflow: ellipsis`.
+- Set spacing with `gap` or margins. Do not rely on `justify-content: space-between` for spacing.
+- Use `min-height` and `min-width` instead of fixed `height` and `width` on elements with variable content, and give buttons a `min-width`.
+- Set `max-width: 100%` on images, and `object-fit: cover` on images with fixed dimensions.
+- Set `background-repeat: no-repeat` on background images.
+- Give `var()` a fallback when the variable can be undefined.
+- Use `auto-fill` for grids with a variable item count. Use `auto-fit` only when the items must stretch to fill the row.
+- Use `overflow: auto`, not `overflow: scroll`. Add `scrollbar-gutter: stable` where a scrollbar would shift the layout, and `overscroll-behavior: contain` on scrollable panels inside a page.
+- Set `align-self: start` on sticky elements inside grid or flex containers.
+- Set `align-items` explicitly when flex children must not stretch to the row height.
+- Put hover styles inside `@media (hover: hover)`.
+- Set input `font-size` to 16px or more, so iOS Safari does not zoom on focus.
+- Put a background color or overlay behind text that sits on an image, so the text stays readable on a light image.
+- Apply sticky or fixed positioning inside a `min-height` media query, so short viewports keep the content visible.
+- Write vendor-prefixed selectors in separate rules, because one invalid selector invalidates the whole rule.
 
 # Processes
 Clean up every process you start.
